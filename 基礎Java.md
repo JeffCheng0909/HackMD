@@ -49,9 +49,6 @@ example:
 StringUtils.isBlank(" "); //true
 StringUtils.isEmpty(" "); //false
 
-
-
-
 ```
 ```
 //Math.round負值為五捨六入
@@ -63,6 +60,13 @@ System.out.println(Math.round(-2.5)); //-2
 System.out.println(Math.round(-0.6)); //-1
 System.out.println(Math.round(-1.6)); //-2
 System.out.println(Math.round(-2.6)); //-3
+```
+```
+其他參考JS note:
+
+字串物件(String)-常用方法 [全部與Java寫法相同]
+
+Math物件-常用方法 [全部與Java寫法相同]
 ```
 ### 方法基本觀念
 ```
@@ -83,6 +87,8 @@ System.out.println(Math.round(-2.6)); //-3
 8. static方法只能存取static方法和變數。 (要存取non-static方法就必須先new出物件。)
 
 9. non-static方法可以存取non-static and static方法和變數。
+
+10. 父類別有的方法，子類別就算沒有覆寫也能直接拿來用。
 ```
 
 ### Getter / Setter
@@ -372,6 +378,28 @@ class TestEnum6 {
         for(Week x: Week.values()){
             System.out.println(x.msg+" "+x.discount);
         } //星期天 3.0 星期一 8.0 星期二 7.0 星期三 2.5 星期四 6.0......
+        
+    }
+}
+```
+* 方法應用範例3
+```
+public enum EnumTest {
+
+    fruit1("Apple","Red"),fruit2("Banana","Yellow");
+
+    public String name;
+    public String color;
+
+    private EnumTest(String name,String color) {
+        this.name = name;
+        this.color = color;
+    }
+
+    public static void main(String[] args) {
+        
+        System.out.println(EnumTest.fruit1.name); //Apple
+        System.out.println(EnumTest.fruit1.color); //Red
         
     }
 }
@@ -767,12 +795,30 @@ FATAL:
 
 #### ==及Equals
 ```
-基本型別只有 == 比值，沒有Equals方法。
+基本型別只有 == 比值，沒有equals方法。
 
 參考型別的==跟equals都是比記憶體位置。
 
 String以及Integer等類別可以使用equals來比較內容，是因為override過Object的equals方法。
 ```
+#### overload
+```
+可以根據參數數目及型別不同，建立多個相同名稱的方法。
+```
+
+#### override
+```
+子類別繼承父類別之後，可以改寫父類別的方法。但必須:
+
+1.方法名稱、2.參數個數、3.參數型別、4.回傳值皆與父類別相同。
+
+5.存取修飾子等級不能小於原方法，
+
+6.當父類別定義有throws的方法時，子類別所throws的Exception不能大於父類別，
+
+7.加有final修飾的方法不能被override、static方法只能覆寫為static方法。
+```
+
 #### public static void main(String args[])
 ```
 public: main方法是Java程序運行時調用的第一個方法，因此它必須對Java環境可見。所以可見性設置為pulic。
@@ -800,7 +846,7 @@ System是系統提供的預定義的final類，out是一個PrintStream對象，p
 
 5. 抽象類別無法產生實體，即無法new新物件。
 
-6. 子類別繼承了抽象父類別，並實作出父介面所有抽象方法，此子類別就不再是抽象類別，即可以new新物件。
+6. 子類別繼承了抽象父類別，並實作出父類別所有抽象方法，此子類別就不再是抽象類別，即可以new新物件。 (非抽象方法則不用實作出來，即可new新物件)
 ```
 
 #### Interface
@@ -870,4 +916,228 @@ public class HelloWorld implements PP{
         hh.run();;
     }
 }
+```
+#### 建構子
+```
+1. 建構子名稱需與類別名稱相同。
+
+2. 建構子無回傳值，連void都不能加。
+
+3. Java會自動給一個不帶參數的建構子，一旦宣告其他建構子，則Java會自動將此預設建構子移除。
+
+4. 建構子只能接在new後面來呼叫，每個物件的建構子只會在誕生執行一次。
+
+5. 建構子可以overload。
+
+6. 建構子不能被override。
+
+7. 建構子無法被繼承，但可以呼叫。
+
+8. 子類別的建構子中，會自動被加上一個預設的super()建構子。
+```
+#### 建構子覆載範例
+```
+public class PenConstOverload {
+    private String brand;
+    private double price;
+	
+    public PenConstOverload(String brand, double price) {
+        this.brand = brand;
+        this.price = price;
+    }
+	
+    public PenConstOverload(double price) {
+        this("SKB", price);
+    }
+	
+    public PenConstOverload(String brand) {
+        this(brand, 10);
+    }
+	
+    public PenConstOverload() {
+        this("SKB", 10);   //this要放第一行。
+                           //this("SKB", 10)等於是執行上面匹配的第一個建構子。
+                           //再由上面匹配的建構子傳到最上面實體變數，完成資料設定。
+    }
+	
+    public void showInfo() {
+        System.out.println("牌子為： " + brand);
+        System.out.println("價格為： " + price);
+        System.out.println("=============");
+    }
+	
+    public static void main(String[] args) {
+		
+        PenConstOverload p1 = new PenConstOverload("A", 20);
+        PenConstOverload p2 = new PenConstOverload(40);
+        PenConstOverload p3 = new PenConstOverload("B");
+        PenConstOverload p4 = new PenConstOverload();
+		
+        p1.showInfo();
+        p2.showInfo();
+        p3.showInfo();
+        p4.showInfo();
+    }
+}
+
+```
+```
+牌子為： A
+價格為： 20.0
+=============
+牌子為： SKB
+價格為： 40.0
+=============
+牌子為： B
+價格為： 10.0
+=============
+牌子為： SKB
+價格為： 10.0
+=============
+```
+#### 呼叫父類別範例
+```
+public class Employee {
+    private int empno;
+    private String ename;
+
+    public void setEmpno(int empno) {
+        this.empno = empno;
+    }
+
+    public int getEmpno() {
+        return empno;
+    }
+
+    public void setEname(String ename) {
+        this.ename = ename;
+    }
+
+    public String getEname() {
+        return ename;
+    }
+
+    public Employee(int empno, String ename) {
+        this.empno = empno;
+        this.ename = ename;
+    }
+
+    public Employee(int empno) {
+        this(empno, "-");
+    }
+
+    public Employee(String ename) {
+        this(0, ename);
+    }
+
+    public Employee() {
+    }
+
+    public void display() {
+        System.out.println("empno = " + empno);
+        System.out.println("ename = " + ename);
+    }
+}
+```
+```
+public class FullTimeEmployee extends Employee {
+
+    private double monthlySalary; // 月薪
+
+    public void display() {
+        super.display();
+        System.out.println("月薪 = " + monthlySalary);
+    }
+
+    public FullTimeEmployee(int empno, String ename, double monthlySalary) {
+        super(empno, ename);   //設定在父類別裡
+        this.monthlySalary = monthlySalary;   //設定在子類別裡
+    }
+}
+```
+```
+public class TestFullTimeEmployee {
+
+    public static void main(String[] args) {
+        FullTimeEmployee f1 = new FullTimeEmployee(7002 ,"David", 50000.0 );          
+        f1.display();
+    }
+}
+```
+```
+empno = 7002
+ename = David
+月薪 = 50000.0
+```
+#### 預設建構子範例
+```
+public class Build {
+
+    public Build(int a){
+        
+    }
+    
+    public static void main(String[] args) {
+
+        Build bb = new Build(3);   //宣告了有參數建構子之後，預設無參數建構子就會被拿掉。
+
+    }
+
+    class Test extends Build{
+    
+        public Test(){     
+            super(5);   //宣告了有參數建構子之後，預設無參數建構子就會被拿掉，所以super();會報錯。
+            System.out.println("Test");
+            
+        }
+    }
+}
+```
+#### 繼承範例
+> Java會自動加上一個預設的super()建構子。
+
+> 如果子類別建構式中沒有指定執行父類別中哪個建構式，預設會呼叫父類別中無參數建構式。
+```
+public class Build {
+    public static void main(String[] args) {
+
+        Father ff = new Father();
+        System.out.println();
+        Son ss = new Son();
+        System.out.println();
+        Grandson oo = new Grandson();
+
+    }
+
+    static class Father {
+        Father(){
+//            super();
+            System.out.println("Father Constructor");
+        }
+    }
+
+    static class Son extends Father {
+        Son(){
+//            super();
+            System.out.println("Son Constructor");
+        }
+    }
+
+    static class Grandson extends Son{
+        Grandson(){
+//            super();
+            System.out.println("Grandson Constructor");
+        }
+    }
+}
+```
+```
+Father Constructor
+
+Father Constructor
+Son Constructor
+
+Father Constructor
+Son Constructor
+Grandson Constructor
 ```
