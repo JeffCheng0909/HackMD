@@ -55,10 +55,17 @@ StringUtils.isBlank(" "); //true
 StringUtils.isEmpty(" "); //false
 ```
 ```
+//char可以和數字相比較
+//使用charAt出來的==比較是比ASCII
+
 String x = "123";
 System.out.println(x.charAt(0)); //1
 System.out.println(x.charAt(0)==49); //true
-                                     //使用charAt出來的==比較是比ASCII
+                                     
+                                    
+char x = 'a';
+System.out.println(x == 97); //true
+System.out.println((int) x == 97); //true                              
 ```
 ```
 //instanceof可以向下比較
@@ -143,14 +150,12 @@ this指的是這一個物件，指屬性或方法在哪個物件下被呼叫，t
 
 ### Getter / Setter
 ```
-// 當實體變數為private。在同一個class下，可使用. 或者public的 Getter/Setter存取。
-// 當實體變數為private。在不同class下，只能使用public的 Getter/Setter存取。
+// 在同一個class下，可直接存取(任何封裝修飾)的實體變數以及使用(任何封裝修飾)的Getter/Setter方法。
+// 在不同class下，只能存取(合宜封裝修飾)的實體變數以及(合宜封裝修飾)的Getter/Setter方法。
 
-// .可用於Get or Set，但不管是不是同類別，前面都必須有物件名/類別名。物件名/類別名.變數名。
+// .可用於Get or Set，但不管是不是同類別，都必須是。物件名/類別名.變數名。
 
-// 當實體變數為public，在任何class下，可使用. 或者public的 Getter/Setter存取。
-// 同class可直接使用方法名呼叫Getter/Setter，但使用 . 則必須new物件出來。
-// 不同class必須要new物件出來才能使用Getter/Setter 以及 .。
+// 不同class必須要new物件出來才能使用(合宜封裝修飾)的Getter/Setter 以及 .。
 
 // New物件之後使用get / set方法，只能寫在方法內，直接寫在類別底下會報紅字。
 
@@ -233,7 +238,7 @@ public static void main(String[] args) {
 //類別名可直接. 靜態方法/靜態變數
 
 public class Draft {
-    private  static int num = 20;
+    private static int num = 20;
 
     public static void main(String[] args) {
         Draft.num=100; //set 100
@@ -1159,6 +1164,23 @@ FATAL:
 
 ### 基礎概念
 
+#### package
+```
+1. 要引用不同package的類別需要import xxxPackage.xxxClass
+
+2. 在類別中package xxx;須放在import之前。
+
+
+package Practice;
+import Note.Animal;
+
+public class Draft {
+    public static void main(String[] args) {
+        
+    }
+}
+```
+
 #### 基本型別 & 包裝類
 ```
 基本型別:byte、short、int、long、float、double、boolean、char
@@ -1334,7 +1356,7 @@ public class Draft {
 ```
 基本型別只有 == 比值，沒有equals方法。
 
-參考型別的==跟equals都是比記憶體位置。 (變數所儲存的參考)
+參考型別的==跟equals都是比記憶體位置，繼承自Object的原生方法。 (變數所儲存的參考)
 
 String以及Integer等類別可以使用equals來比較內容，是因為override過Object的equals方法。
 
@@ -1360,6 +1382,7 @@ public class Draft {
 ```
 ```
 //字串比較
+//在 Java 中，使用 '+' 串接字串的話會產生一個新的字串物件
 
 public class Draft {
     public static void main(String arg[]) {
@@ -2023,6 +2046,135 @@ SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmssS");
 String date = df.format(now);
 
 System.out.println(date);
+```
+#### 集合族譜
+```
+List: 
+1. 會自動按加入先後順序排列。
+2. 允許重複的值加入。
+3. 有索引值。
+4. 可使用iterator & for-each & for迴圈取值。
+5. 集合可放不同型別物件。
+ 
+HashSet:
+1. 取出時無順序性(按加入順序&大小排列)。
+2. [值重複不會被加入。]
+3. [沒有索引值。]
+4. [需使用iterator跟for-each取值。]
+5. 集合可放不同型別物件。
+
+TreeSet:
+1. 會自動按大小排列(由小到大)。
+2. [值重複不會被加入。]
+3. [沒有索引值。]
+4. [需使用iterator跟for-each取值。]
+5. 集合需放同型別物件。
+
+LinkedHashSet:
+1. 會自動按加入先後順序排列。
+2. [值重複不會被加入。]
+3. [沒有索引值。]
+4. [需使用iterator跟for-each取值。]
+5. 集合可放不同型別物件。
+
+HashMap:
+1. 取出時無順序性(按加入順序&大小排列)。
+2. [Key值重複定義時，後面的值會覆蓋掉前面的值。]
+3. [有索引值。]
+4. [可使用iterator & for-each取值，但需先使用KeySet 或 values方法轉換。]
+5. 集合可放不同型別物件。
+
+TreeMap:
+1. 放入的元素會自動按Key的大小排列(由小到大)。
+2. [Key值重複定義時，後面的值會覆蓋掉前面的值。]
+3. [有索引值。]
+4. [可使用iterator & for-each取值，但需先使用KeySet 或 values方法轉換。]
+5. 集合需放同型別key(Key需同型別，但Value不用)。
+
+LinkedHashMap:
+1. 會自動按加入先後順序排列。
+2. [Key值重複定義時，後面的值會覆蓋掉前面的值。]
+3. [有索引值。]
+4. [可使用iterator & for-each取值，但需先使用KeySet 或 values方法轉換。]
+5. 集合可放不同型別物件。
+```
+
+```
+Iterator > Collection > List > ArrayList
+                             > LinkedList
+                             > Vector
+
+                      > Set  > HashSet
+                             > TreeSet
+                             > LinkedHashSet
+                      
+                      > Queue > LinkedList
+                              > PriorityQueue
+
+public interface Collection extends Iterable
+
+public interface List extends Collection
+public interface Set extends Collection
+public interface Queue extends Collection
+
+public class ArrayList extends AbstractList
+                       implements List, RandomAccess, Cloneable, Serializable
+                       
+       
+Map > HashMap
+    > TreeMap
+    > LinkedHashMap
+    > Hashtable
+
+public class HashMap extends AbstractMap
+                     implements Map, Cloneable, Serializable
+```
+#### 集合方法
+* Collection定義的方法
+```
+add(obj); //加入物件
+
+add(index, element); //將物件插入到指定的位置
+
+addAll(Collection c); //將c的所有元素加入集合當中
+
+clear(); //清空集合
+
+remove(obj); //刪除obj
+
+removeAll(Collection c); //刪除c的所有元素
+
+contains(obj); //集合是否包含obj物件
+
+containsAll(Collection c); //集合是否包含c中的所有元素
+
+equals(obj); //集合是否與obj相等
+
+isEmpty(); //集合是否為空
+
+toArray(); //將集合轉為物件陣列
+
+size(); //集合元素個數
+```
+* List定義的方法
+```
+get(int index); //拿到索引值物件
+
+set(int index, E element); //更改索引值物件的值
+```
+* Map定義的方法
+```
+put(K key, V value); //加入物件
+
+get(Object key); //拿到索引值物件
+
+containsKey(Object key); //是否包含此key物件
+
+containsValue(Object value); //是否包含此value物件
+
+keySet(); //將所有的key轉為Set物件 
+
+values(); //將所有的value轉為Collection物件 
 ```
 #### 字串、陣列、集合為空判斷
 ```
@@ -3052,6 +3204,8 @@ sleep() : 不會釋放物件旗標(Lock)。
 notify() : 喚醒一個wait狀態的執行緒。
 
 notifyAll() : 喚醒所有wait狀態的執行緒。
+
+yield() : 暫停目前正在執行的執行緒物件，並執行其他執行緒。
 ```
 
 * 範例1
@@ -3100,6 +3254,20 @@ Thread-1 x=6,y=6  1
 Thread-1 x=7,y=7  2
 Thread-1 x=8,y=8  3
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### 練習題
 #### 陣列求最大值
