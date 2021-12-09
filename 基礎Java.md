@@ -3,7 +3,7 @@
 
 ### 方法大全
 
-#### Integer and String
+#### Integer & String 轉換
 ```
 //通常方法名是什麼，就返回什麼
 
@@ -31,9 +31,40 @@ example:
 String num;
 Integer.parseInt(num);  //return int
 Integer.valueOf(num).intValue();  //return int
+```
+#### String方法
+```
+str.length() //返回字串長度
 
+str.charAt(n) //返回索引值n的字元，不存在則返回空字串
 
+str.indexOf(字串s,開始索引值n) //返回字串首次出現位置索引值，從索引值n開始查詢，不存在則回傳-1
+str.lastIndexOf(字串s,開始索引值n) //返回字串最後出現位置索引值，從索引值n開始查詢，不存在則回傳-1
+
+str.substring(索引值n,索引值m) //返回從索引值n到(m-1)之間的字元，m可省略表示擷取到最後
+
+str.replace(字串r,字串s) //將原字串中的r替換成s
+
+str.trim() //返回一個去除開頭與結尾的所有空白字元字串
+
+str.toUpperCase() //將字串轉大寫
+str.toLowerCase() //將字串轉小寫
+
+str1.concat(str2) //字串相加
+
+str1.contains("some str") //是否包含
+
+str.isEmpty() //是否為空 
+
+str.split(字串s) //以字串s切割原字串，並返回n個子字串的陣列(分割)
+
+註:
+. 、 $、 | 和 * 等轉義字符，必须得加 \\。
+str.split("\\.")
+```
+```
 [需import org.apache.commons.lang3.StringUtils]
+
 #boolean isBlank(String str)
 //判斷某字串是否為空或長度為零或由空白構成。
 //等於把空白先trim掉再判斷
@@ -68,6 +99,57 @@ System.out.println(x == 97); //true
 System.out.println((int) x == 97); //true                              
 ```
 ```
+//char陣列轉字串
+//字串轉char陣列
+
+public class Draft {
+    public static void main(String[] args) {
+
+        char[] cs1 = {'a','p','p','l','e'};
+
+        String fruit = new String(cs1);
+        System.out.println(fruit);
+
+        char[] cs2 = fruit.toCharArray();
+        System.out.println(Arrays.toString(cs2));
+    }
+}
+
+
+//apple
+//[a, p, p, l, e]
+```
+#### Math方法
+```
+Math.min(值1,值2,...) //傳回參數列的最小值
+Math.max(值1,值2,...) //傳回參數列的最大值
+
+Math.random() //傳回一個介於0~1之間的亂數
+
+Math.round(x) //將x值四捨五入 =SQL的ROUND
+
+Math.ceil(x) //傳回一個大於或等於x的最小整數(無條件進位)
+Math.floor(x) //傳回一個小於或等於x的最大整數(無條件捨去) =SQL的TRUNC
+Math.ceil(2.321) //3
+Math.floor(2.321) //2
+Math.PI //圓周率
+Math.pow(x,y) //x的y次方
+Math.sqrt(x) //x的平方根
+Math.abs(x) //x的絕對值
+```
+```
+//Math.round負值為五捨六入
+
+System.out.println(Math.round(-0.5)); //0
+System.out.println(Math.round(-1.5)); //-1
+System.out.println(Math.round(-2.5)); //-2
+
+System.out.println(Math.round(-0.6)); //-1
+System.out.println(Math.round(-1.6)); //-2
+System.out.println(Math.round(-2.6)); //-3
+```
+#### 未分類方法
+```
 //instanceof可以向下比較
 
 public class Draft {
@@ -96,24 +178,6 @@ public  class Test1 {
     }
 }
 ```
-```
-//Math.round負值為五捨六入
-
-System.out.println(Math.round(-0.5)); //0
-System.out.println(Math.round(-1.5)); //-1
-System.out.println(Math.round(-2.5)); //-2
-
-System.out.println(Math.round(-0.6)); //-1
-System.out.println(Math.round(-1.6)); //-2
-System.out.println(Math.round(-2.6)); //-3
-```
-```
-其他參考JS note:
-
-字串物件(String)-常用方法 [全部與Java寫法相同]
-
-Math物件-常用方法 [全部與Java寫法相同]
-```
 ### 方法基本觀念
 ```
 1. 方法一定要放在某個類別裡面。
@@ -137,6 +201,8 @@ Math物件-常用方法 [全部與Java寫法相同]
 10. 父類別有的方法，子類別就算沒有覆寫也能直接拿來用。
 
 11. function scope，變數一離開方法就被消滅釋放，無法使用。
+
+12. 方法內遇到return = 中斷跳出方法
 ```
 
 ### this關鍵字
@@ -496,7 +562,7 @@ public class Animal {
 }
 ```
 
-#### 使用方法複製 (深拷貝範例)
+#### 深拷貝範例1
 > 基本型別都是複製值，只有類別型別才會有深拷貝。
 
 > 各自獨立
@@ -537,6 +603,38 @@ public class TestDeepCopy {
     }
 }
 ```
+#### 深拷貝範例2
+```
+class Clothes2 {
+    String color;
+    char size;
+
+    Clothes2(String color, char size) {
+        this.color = color;
+        this.size = size;
+    }
+}
+
+public class DeepCopy {
+    public static void main(String[] args) {
+    
+        Clothes2[] c1 = {new Clothes2("red", 'L'), new Clothes2("blue", 'M')};
+        var c2 = new Clothes2[c1.length];
+
+        for (var i = 0; i < c1.length; i++) {
+            c2[i] = new Clothes2(c1[i].color, c1[i].size);
+        }
+
+        c1[0].color = "yellow";
+        System.out.println(c1[0].color);
+        System.out.println(c2[0].color);
+    }
+}
+
+//yellow
+//red
+```
+
 
 ### 流程控制的變數作用域
 > 在if、for、while、do-while、try裡面定義的變數，無法在外面使用。
@@ -1125,9 +1223,115 @@ public class UserService {
     }
 }
 ```
+### 讀txt檔案
+```
+//使用renameTo方法，可更改檔名/移動檔案，但Linux系統有時會失敗
+
+public class Draft {
+    public static void main(String[] args) throws IOException {
+
+        String sourcePath = "D:\\data\\source";
+        String successDestPath = "D:\\data\\success";
+        String failDestPath = "D:\\data\\failed";
+
+        //path only
+        File file = new File(sourcePath); 
+        String[] fileNameList = file.list();
+
+        for (int i = 0; i < fileNameList.length; i++) {
+
+            //path + filename
+            File toBeRenamed = new File(sourcePath + "\\" + fileNameList[i]);
+            String oriFileName = fileNameList[i].split("\\.")[0];
+            File newFile = new File(sourcePath + "\\" + oriFileName + "_test" + ".txt");
+
+            //搬移檔案
+            toBeRenamed.renameTo(newFile);
+            
+            
+            //可改為此複製方法取代renameTo
+            FileUtils.copyFile(toBeRenamed, newFile);
+            
+            //但此方法需再自行刪除原始檔案
+            FileUtils.forceDelete(toBeRenamed);
+        }
+    }
+}
+
+```
+### 後端List前端取用
+```
+後端-將List先轉成JSONArray:
+JSONArray jsonList = JSONArray.fromObject(settingList); //List settingList
+
+前端-拿到jsonString再轉回List:
+<s:hidden id="jsonList" name="jsonList"/>
+var temp = $("#jsonList").val(); //val()拿到字串
+var listJson = JSON.parse(temp); //可以把JSON字串格式的物件，恢復成物件格式
+
+
+GSON??
+
+
+前端-將物件陣列轉為JSON形式的字串:
+var editList = JSON.stringify(selectedData); //Object Array selectedData
+$("#editList").val(editList);
+
+
+後端獲取-轉回JSON陣列：
+private String editList;
+JSONArray conditionList = JSONArray.fromObject(editList);
+```
+### JSON後端概述
+```
+建立JSONObject:
+1.JSONObject jsonObject = new JSONObject();
+2.JSONObject jsonObject = JSONObject.fromObject(hashMap);
+3.JSONObject jsonObject = JSONObject.fromObject(jsonString);
+
+建立JSONArray:
+1.JSONArray jsonArray = new JSONArray();
+2.JSONArray jsonArray = JSONArray.fromObject(arrayList);
+3.JSONArray jsonArray = JSONArray.fromObject(jsonString);
+
+JSONArray放入HashMap:
+JSONArray.fromObject(hashMap);
+
+jsonObject：{“UserName”:”ZHULI”,”age”:”30″,”workIn”:”ALI”}
+
+jsonArray：[“ZHULI”,”30″,”ALI”]
+
+
+獲取JSONObject中的值：
+String userName = jsonObject.getString(“key”);
+
+獲取JSONArray中的值：
+String userName = jsonArray.getString(index);
 
 
 
+String jsonString = "{\"UserName\":\"kobi\",\"age\":\"34\",\"workIn\":\"ALI\",\"Array\":[\"kobi\",\"34\",\"ALI\"]}";
+
+將Json字串轉為java物件:
+JSONObject obj = JSONObject.fromObject(jsonString);
+
+獲取Object中的UserName:
+obj.getString("UserName");
+
+獲取ArrayObject:
+JSONArray transitListArray = obj.getJSONArray("Array");
+```
+### Gson概述
+```
+1.將對象轉為JSON形式的字串:
+Gson gson = new Gson();
+List persons = new ArrayList();
+String str = gson.toJson(persons);
+
+2.將JSON字串轉為JAVA物件:
+jsonString：[{“name”:”name0”,”age”:0}]
+Person person = gson.fromJson(jsonString, Person.class);
+```
 ### logger層級
 ```
 Loggers(寫Log )
@@ -1187,6 +1391,9 @@ public class Draft {
 
 對應包裝類:Byte、Short、Integer、Long、Float、Double、Boolean、Character
 ```
+```
+在Java中，任何類別宣告的名稱都可以參考至null，表示該名稱沒有參考至任何物件實體，相當於有個名牌沒有任何人配戴。
+```
 
 #### 變數、常數、方法、類別命名規則
 ```
@@ -1216,6 +1423,32 @@ public class Draft2 {
         
         System.out.println(bg1.equals(bg2)); //false
         System.out.println(bg1.compareTo(bg2)); //0
+    }
+}
+```
+```
+創建時用String避免精度問題
+BigDecimal bg = new BigDecimal("1000");
+
+add() //加
+subtract() //減
+multiply() //乘
+divide() //除
+```
+```
+//add要視為+，還是要賦值到一個變數去儲存，不同於List的add
+
+public class Demo {
+    public static void main(String[] args) {
+
+        BigDecimal num1 = new BigDecimal(50);
+        BigDecimal num2 = new BigDecimal(100);
+
+        num1.add(num2);
+        System.out.println(num1); //50
+
+        BigDecimal result = num1.add(num2);
+        System.out.println(result); //150
     }
 }
 ```
@@ -1381,6 +1614,23 @@ public class Draft {
 }
 ```
 ```
+public class Draft {
+    public static void main(String[] args) {
+
+        String name1 = "Java";
+        String name2 = name1 + "World";
+        System.out.println(name2);
+
+
+        //反組譯上述程式碼，得知使用+串接字串，會產生新的String物件。
+        //盡量不要在迴圈內使用，因效能較差。
+        String s = "Java";
+        String s1 = (new StringBuilder()).append(s).append("World").toString();
+        System.out.println(s1);
+    }
+}
+```
+```
 //字串比較
 //在 Java 中，使用 '+' 串接字串的話會產生一個新的字串物件
 
@@ -1399,6 +1649,31 @@ public class Draft {
     }
 }
 ```
+```
+public class Draft {
+    public static void main(String[] args) {
+
+        String a = "abcde";
+        String b = "ab";
+        String c = b +"cde";
+        System.out.println(a == c); //false
+    }
+}
+
+
+//一行寫死，編譯器會認為就是要這個東西，不是去串接字串
+public class Draft {
+    public static void main(String[] args) {
+
+        String a = "abcde";
+        String b = "abc"+"de";
+        System.out.println(a == b); //true
+    }
+}
+```
+
+
+
 ```
 //基本型別+字串時，基本型別會轉換為字串型別
 
@@ -1635,6 +1910,8 @@ class D implements C {
 3. Java會自動給一個不帶參數的建構子，一旦宣告其他建構子，則Java會自動將此預設隱形的建構子移除。
 
 4. 建構子只能接在new後面來呼叫，每個物件的建構子只會在誕生執行一次。
+
+4. 在Java中只要看到new，一定就是建立新物件，會有一個新的記憶體位置。
 
 5. 建構子可以overload。
 
@@ -2268,7 +2545,22 @@ public class Draft {
     }
 }
 ```
+#### 陣列塞值
+```
+public class Draft {
+    public static void main(String[] args) {
 
+        int[] intArray = new int[3];
+        System.out.println(Arrays.toString(intArray));
+
+        Arrays.fill(intArray, 100);
+        System.out.println(Arrays.toString(intArray));
+    }
+}
+
+//[0, 0, 0]
+//[100, 100, 100]
+```
 #### 陣列集合轉換
 ```
 //集合轉陣列
@@ -2542,38 +2834,67 @@ public class Demo {
 > 程式設計中經常用到這樣一種特殊的二維陣列，它的列數確定，但是每列的長度不確定。這樣的的陣列實現方法：先創建制定列數，之後再各別指定每一個一維陣列的長度。
 ```
 public class Draft {
-    public static void main(String args[]) {
+    public static void main(String[] args) {
 
-        int[][] a = new int[3][];
+        int[][] arr = new int[2][];
+        
+        arr[0] = new int[]{1, 2, 3, 4, 5}; //必須先初始化長度，必須有new int[]
+        arr[1] = new int[]{1, 2, 3};
 
-        a[0] = new int[3]; //宣告第一列的長度
-        for (int i = 0; i < a[0].length; i++) {
-            a[0][i] = i + 1;
+        for (int[] row : arr) {
+            for (int value : row) {
+                System.out.printf("%2d", value);
+            }
+            System.out.println();
         }
+    }
+}
 
-        System.out.println(Arrays.toString(a[0])); //[1, 2, 3]
+//1 2 3 4 5
+//1 2 3
+```
+```
+//也可以用此方法建立
 
+int[][] arr = {
+    {,2,3,4,5}
+    {1,2,3}   
+}
+```
+#### 二維陣列使用For-Each取值
+```
+%d 就是普通的输出
 
-        a[1] = new int[4]; //宣告第二列的長度
-        for (int i = 0; i < a[1].length; i++) {
-            a[1][i] = i + 1;
+%2d 输出占2个位置，如输出2时，是一个空格和2，如200时输出200
+```
+```
+public class Draft {
+    public static void main(String[] args) {
+
+        int[][] array = {
+                {1, 3, 5},
+                {2, 4, 6}
+        };
+
+        for (int[] row : array) {
+            for (int value : row) {
+                System.out.printf("%2d", value);
+            }
+            System.out.println();
         }
-
-        System.out.println(Arrays.toString(a[1])); //[1, 2, 3, 4]
-
-
-        a[2] = new int[5]; //宣告第三列的長度
-        for (int i = 0; i < a[2].length; i++) {
-            a[2][i] = i + 1;
-        }
-        System.out.println(Arrays.toString(a[2])); //[1, 2, 3, 4, 5]
-
     }
 }
 ```
+```
+ 1 3 5
+ 2 4 6
+```
+
 
 
 #### StringBuffer 
+
+> 只會產生一個實例，效能較好。
 
 * 建構子
 ```
@@ -2648,6 +2969,8 @@ for(初始設定; 條件判斷; 計次){
 #### break、continue
 > break、continue直接出去
 > 迴圈外 的底下程式碼還是會走完
+
+> 用於for、while迴圈
 
 > label: break或continue所標記的迴圈
 
@@ -3021,6 +3344,10 @@ public class TestMyException {
 
 //發生自訂的例外了!
 ```
+#### rollback
+> 指的是同一筆session，在前面步驟有commit成功，後面步驟發生錯誤時，則將commit回溯取消。
+
+
 #### 輸入/輸出流
 
 * 範例1
@@ -3400,4 +3727,19 @@ public class CharClass {
 }
 
 //AHCT
+```
+#### return中斷
+```
+//到return RESULT_EXCEL_NO_DATA; 會直接跳出，設定相關參數不會執行到
+
+	if (CollectionUtils.isEmpty(reportList)) {
+
+		addActionMessage("報表查詢無資料");
+		return RESULT_EXCEL_NO_DATA;
+        
+	}
+	// 設定相關參數	
+	this.setExporterMap(ExcelReportUtils.processExcelParamter());
+
+
 ```
