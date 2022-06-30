@@ -28,7 +28,7 @@ int z = y.intValue();
 
 
 example:
-String num;
+String num;.
 Integer.parseInt(num);  //return int
 Integer.valueOf(num).intValue();  //return int
 ```
@@ -1108,7 +1108,7 @@ public class Test {
 public class Draft {
     public static void main(String[] args) {
 
-        String str = "Practice.ABC";
+        String str = "Practice.ABC"; //DB tableName
         String set = "setName";
         String get = "getName";
 
@@ -1223,9 +1223,11 @@ public class UserService {
     }
 }
 ```
-### 讀txt檔案
+### 讀txt檔案(搬檔及刪除)
 ```
 //使用renameTo方法，可更改檔名/移動檔案，但Linux系統有時會失敗
+
+//注意:txt中文在檔案中佔兩位，讀進javaCode只佔一位。注意SPEC的index如果是txt的內容位置，需另外過老李轉換檔。
 
 public class Draft {
     public static void main(String[] args) throws IOException {
@@ -1249,7 +1251,7 @@ public class Draft {
             toBeRenamed.renameTo(newFile);
             
             
-            //可改為此複製方法取代renameTo
+            //可用此複製方法取代renameTo
             FileUtils.copyFile(toBeRenamed, newFile);
             
             //但此方法需再自行刪除原始檔案
@@ -1257,7 +1259,173 @@ public class Draft {
         }
     }
 }
+```
+```
+public class Draft1 {
+    public static void main(String[] args) throws IOException {
 
+        File file = null;
+        BufferedReader br = null;
+        String successFlag = "";
+        InputStreamReader reader = new InputStreamReader(
+                new FileInputStream("D:\\data\\source\\CAF_461表二.txt"),"big5");
+        br = new BufferedReader(reader);
+
+        String line = "";
+        while (line != null) {
+            line = br.readLine(); // 一次讀入一行資料
+            if (line == null || line.isBlank()) {
+                continue;
+            } else {
+                System.out.println(line);
+            }
+        }
+    }
+}
+```
+### 讀txt檔案(判斷UTF-8/Big5)
+```
+	public List<String> realTxtCsvData(MultipartFile multipartFile) throws Exception {
+		List<String> lineList = new ArrayList<String>();
+
+		File file = multipartFileconvertToFile(multipartFile);
+		boolean resutBoolean = determinFilecoding(file);
+		InputStreamReader reader = null;
+		if (resutBoolean) {
+			reader = new InputStreamReader(multipartFile.getInputStream(), "UTF-8"); // 建立一個輸入流物件reader
+		} else {
+			reader = new InputStreamReader(multipartFile.getInputStream(), "Big5"); // 建立一個輸入流物件reader
+		}
+		BufferedReader br = new BufferedReader(reader); // 建立一個物件，它把檔案內容轉成計算機能讀懂的語言
+		String line = "";
+		while (line != null) {
+			line = br.readLine(); // 一次讀入一行資料
+			if (CommonFunction.checkNotNull(line)) {
+				lineList.add(line);
+			}
+
+		}
+		reader.close();
+		br.close();
+		return lineList;
+	}
+```
+```
+	public boolean determinFilecoding(File file) {
+		boolean result = false;
+		try {
+			FileInputStream in = new java.io.FileInputStream(file);
+			byte[] b = new byte[3];
+			in.read(b);
+			in.close();
+			if (b[0] == -17 || b[1] == -69 || b[2] == -65) {
+				result = true;
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+	}
+```
+
+### 使用java產出Excel
+```
+@Lazy
+@Api(tags = "FBDM6666 JAVA產生Excel測試")
+@RequestMapping("FBDM6666")
+@RestController
+public class ExcelController {
+	private static Logger log = LogManager.getLogger(ExcelController.class);
+	private Workbook workbook;
+	private CreationHelper creationHelper;
+	private String dateFormat;
+
+	@Autowired
+	private CreateexcelsetupService createexcelsetupService;
+
+	@Autowired
+	private TempdataService tempdataService;
+
+	@PostMapping(value = "/ExportExcel")
+	@ResponseBody
+	public ResponseEntity<Object> ExportExcel(@RequestHeader(value = "Authorization", required = true) String token)
+			throws Exception {
+		JsonBean jsonBean = new JsonBean();
+
+		try {
+
+			String filename = "D:/data/NewExcelFile.xls";
+			HSSFWorkbook workbook = new HSSFWorkbook();
+			HSSFSheet sheet = workbook.createSheet("FirstSheet");
+
+			Createexcelsetup createexcelsetup = new Createexcelsetup();
+			createexcelsetup.setType("SpeCommission");
+			createexcelsetup.setIdentification("086A");
+			List<Createexcelsetup> CreateexcelsetupList = createexcelsetupService
+					.queryByCreateexcelsetup(createexcelsetup);
+
+			LinkedHashMap<String, String> titleMap = new LinkedHashMap<>();
+			for (Createexcelsetup element : CreateexcelsetupList) {
+				titleMap.put(element.getCloumnid(), element.getChinesecloumn());
+
+			}
+
+			List<String> fieldList = new ArrayList<String>(titleMap.keySet());
+
+			List<?> dataList = tempdataService.queryAll();
+
+			for (int i = 0; i <= dataList.size(); i++) {
+
+				Row row = sheet.createRow(i);
+
+				for (int j = 0; j < fieldList.size(); j++) {
+
+					Cell cell = row.createCell(j);
+					if (i == 0) {
+						cell.setCellValue(titleMap.get(fieldList.get(j)));
+					} else {
+						Object data = dataList.get(i - 1);
+						Object fieldValue = PropertyUtils.getNestedProperty(data, fieldList.get(j));
+						this.setCellValueByType(fieldValue, cell);
+					}
+				}
+			}
+
+			FileOutputStream fileOut = new FileOutputStream(filename);
+			workbook.write(fileOut);
+			fileOut.close();
+			workbook.close();
+			System.out.println("Your excel file has been generated!");
+
+		} catch (Exception e) {
+			log.debug(e.toString());
+			Arrays.asList(e.getStackTrace()).stream().forEach(sube -> log.debug(sube.toString()));
+			jsonBean.setData("");
+			jsonBean.setStatus(SysEnum.statusError.code);
+			jsonBean.setMessage("新增資料失敗!");
+			return new ResponseEntity<>(jsonBean, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<>(jsonBean, HttpStatus.OK);
+	}
+
+	public void setCellValueByType(Object data, Cell cell) {
+
+		if (data instanceof Number) {
+			Double convert = Double.parseDouble(data.toString());
+			cell.setCellValue(convert);
+		} else if (data instanceof Date) {
+			CellStyle style = workbook.createCellStyle();
+			style.setDataFormat(creationHelper.createDataFormat().getFormat(dateFormat));
+			cell.setCellValue((Date) data);
+			cell.setCellStyle(style);
+		} else if (data instanceof Boolean) {
+			cell.setCellValue((Boolean) data);
+		} else {
+			cell.setCellValue((String) data);
+		}
+	}
+}
 ```
 ### 後端List前端取用
 ```
@@ -1281,7 +1449,15 @@ $("#editList").val(editList);
 後端獲取-轉回JSON陣列：
 private String editList;
 JSONArray conditionList = JSONArray.fromObject(editList);
+
+
+後端獲取JSON陣列：
+JSONArray toBeCheckArray = JSONArray.fromObject(checkArray);
+JSONArray tempArray = toBeCheckArray.getJSONArray(i);
+String BusCode = tempArray.getString(0);
 ```
+
+
 ### JSON後端概述
 ```
 建立JSONObject:
@@ -1292,7 +1468,8 @@ JSONArray conditionList = JSONArray.fromObject(editList);
 建立JSONArray:
 1.JSONArray jsonArray = new JSONArray();
 2.JSONArray jsonArray = JSONArray.fromObject(arrayList);
-3.JSONArray jsonArray = JSONArray.fromObject(jsonString);
+3.JSONArray jsonArray = JSONArray.fromObject(hashMap);
+4.JSONArray jsonArray = JSONArray.fromObject(jsonString);
 
 JSONArray放入HashMap:
 JSONArray.fromObject(hashMap);
@@ -2324,6 +2501,67 @@ String date = df.format(now);
 
 System.out.println(date);
 ```
+* 創立沒有時分秒的當下時間
+```
+LocalDate nowLocalDate = LocalDate.now();
+Date dateToday = Date.from(nowLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+
+Mon May 16 00:00:00 CST 2022
+
+```
+* 日期比大小
+```
+public class Test05 {
+    public static void main(String[] args) throws ParseException {
+        Date date1 = new Date(); //2022-05-16
+        String str = "2022-05-01";
+        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date2 = sf.parse(str);
+        System.out.println(date2.before(date1));
+    }
+}
+
+//true
+```
+```
+void testDateCompare() throws ParseException {
+  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+  Date date1 = sdf.parse("2009-12-31");
+  Date date2 = sdf.parse("2019-01-31");
+
+  System.out.println("date1 : " + sdf.format(date1));
+  System.out.println("date2 : " + sdf.format(date2));
+
+  if (date1.compareTo(date2) > 0) {
+    System.out.println("Date1 时间在 Date2 之后");
+  } else if (date1.compareTo(date2) < 0) {
+    System.out.println("Date1 时间在 Date2 之前");
+  } else if (date1.compareTo(date2) == 0) {
+    System.out.println("Date1 时间与 Date2 相等");
+  } else {
+    System.out.println("程序怎么会运行到这里?正常应该不会");
+  }
+}
+```
+* 增加Date時間到最後一秒
+```
+    public static Date dateToDateEnd(Date date){
+        if (date == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        LocalDate localDate = convertDateToLocalDate(date);
+        calendar.set(Calendar.YEAR, localDate.getYear());
+        calendar.set(Calendar.MONTH, localDate.getMonthValue()-1);
+        calendar.set(Calendar.DAY_OF_MONTH, localDate.getDayOfMonth());
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        return calendar.getTime();
+    }
+```
 #### 集合族譜
 ```
 List: 
@@ -3344,9 +3582,22 @@ public class TestMyException {
 
 //發生自訂的例外了!
 ```
-#### rollback
-> 指的是同一筆session，在前面步驟有commit成功，後面步驟發生錯誤時，則將commit回溯取消。
+#### commit & rollback
+> 所有的DML語句都要顯示提交，就是要執行COMMIT / ROLLBACK。
 
+> DML 語句就是 INSERT / DELETE / UPDATE / SELECT。
+
+> DML 語句，執行完之後，處理的數據，都會放在回滾段中，等待用戶進行提交（COMMIT）或者回滾（ROLLBACK），當用戶執行COMMIT / ROLLBACK 後，放在回滾段中的數據就會被刪除。
+
+> 1.若指令皆正確,則執行 commit 完成異動 => 相關 table 資料被更新。
+
+> 2.若指令有任何一條錯誤,則執行 rollback 取消異動 => 相關 table 資料維持原狀。
+
+> COMMIT後就不能ROLLBACK了。
+
+> 必須提交，因為如果沒有執行 commit 或是 rollback，那麼資料會持續處於鎖定狀態，造成其他使用者必須繼續等待。
+
+> 同一條session，尚未commit前，可以查到先前insert的資料。
 
 #### 輸入/輸出流
 
