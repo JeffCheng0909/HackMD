@@ -1070,6 +1070,22 @@ public class Test {
 註:陣列方法Arrays.asList可快速構建一個List，但此List沒有辦法操作add和remove等方法。
 註:Returns a fixed-size list backed by the specified array.
 ```
+2. 補充說明Arrays.asList
+```
+生成的List的長度是固定的；能夠進行修改操作（比如，修改某個位置的元素），但
+不能執行影響長度的操作（如add、remove等操作）。會丟擲UnsupportedOperationException異常。
+
+X錯誤操作:
+List<String> array1 = Arrays.asList("Welcome", "to","Java", "world");
+array1.add("Cool~~~");
+//Exception in thread "main" java.lang.UnsupportedOperationException
+
+
+O解決方法:
+List<String> array1 = new ArrayList<>(Arrays.asList("Welcome", "to", "Java", "world"));
+array1.add("Cool~~~");
+```
+
 
 3. IntStream
 ```
@@ -1769,6 +1785,8 @@ public class Draft {
 參考型別的==跟equals都是比記憶體位置，繼承自Object的原生方法。 (變數所儲存的參考)
 
 String以及Integer等類別可以使用equals來比較內容，是因為override過Object的equals方法。
+
+https://www.gushiciku.cn/pl/gfB3/zh-tw
 
 https://openhome.cc/Gossip/JavaEssence/EqualOperator.html
 ```
@@ -2571,6 +2589,7 @@ List:
 4. 可使用iterator & for-each & for迴圈取值。
 5. 集合可放不同型別物件。
  
+ 
 HashSet:
 1. 取出時無順序性(按加入順序&大小排列)。
 2. [值重複不會被加入。]
@@ -2583,7 +2602,7 @@ TreeSet:
 2. [值重複不會被加入。]
 3. [沒有索引值。]
 4. [需使用iterator跟for-each取值。]
-5. 集合需放同型別物件。
+5. 集合需放同型別物件，否則排序會爆掉。
 
 LinkedHashSet:
 1. 會自動按加入先後順序排列。
@@ -2592,12 +2611,20 @@ LinkedHashSet:
 4. [需使用iterator跟for-each取值。]
 5. 集合可放不同型別物件。
 
+
 HashMap:
 1. 取出時無順序性(按加入順序&大小排列)。
 2. [Key值重複定義時，後面的值會覆蓋掉前面的值。]
 3. [有索引值。]
 4. [可使用iterator & for-each取值，但需先使用KeySet 或 values方法轉換。]
 5. 集合可放不同型別物件。
+6. key/value允許null。
+
+HashTable:
+1. 取出時無順序性
+2. [Key值重複定義時，後面的值會覆蓋掉前面的值。]
+3. 實現多執行緒安全，效能較差。
+4. key/value不允許null。
 
 TreeMap:
 1. 放入的元素會自動按Key的大小排列(由小到大)。
@@ -3832,21 +3859,31 @@ Thread-1 x=6,y=6  1
 Thread-1 x=7,y=7  2
 Thread-1 x=8,y=8  3
 ```
+#### 轉發（forward）和重定向（redirect）區別
+```
+在Servlet中兩種實現： 
 
+forward方式：request.getRequestDispatcher("/somePage.jsp").forward(request, response);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+redirect方式：response.sendRedirect("/somePage.jsp");
+	  
+1.forward是服務器內部重定向，程序收到請求後重新定向到另一個程序，客戶機並不知道。
+	  
+2.forward是容器中控制權的轉向，在客戶端瀏覽器地址欄中不會顯示出轉向後的地址。
+	  
+3.forward 會將 request state , bean 等等信息帶往下一個 jsp 。
+		  
+4.使用 forward 你就可以用 getAttribute() 來取的前一個 jsp 所放入的 bean 等等資料。
+	  
+5.與redirect方式相比，forward更加高效。
+	  
+	  
+1.redirect則是服務器收到請求後發送一個狀態頭給客戶，客戶將再請求一次，這裏多了兩次網絡通信的來往。
+	  
+2.redirect是完全的跳轉，瀏覽器將會得到跳轉的地址，並重新發送請求鏈接。這樣，從瀏覽器的地址欄中可以看到跳轉後的鏈接地址。
+	  
+3.redirect 是送到 client 端後再一次 request , 所以資料不被保留。
+```
 ### 練習題
 #### 陣列求最大值
 ```
