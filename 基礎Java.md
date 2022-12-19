@@ -2717,6 +2717,8 @@ containsValue(Object value); //是否包含此value物件
 keySet(); //將所有的key轉為Set物件 
 
 values(); //將所有的value轉為Collection物件 
+
+entrySet(); //將所有的key和value轉為Set<Map.Entry<String, String>>物件，並用getKey() & getValue()取用
 ```
 #### 字串、陣列、集合為空判斷
 ```
